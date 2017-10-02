@@ -70,6 +70,11 @@ void MainWindow::showMat(Mat display)
 
 
 void MainWindow::zoomin(){
+
+    if(image.empty()){
+        QMessageBox::information(this, tr("Error"),QString("There is no image loaded yet! Please load an image then try again"));
+    }
+    else{
     if(imagesize <= 4000){
         imagesize=imagesize+200;
         Mat dst;
@@ -84,9 +89,14 @@ void MainWindow::zoomin(){
 
         showMat(copyofimage);
     }
+    }
 }
 
 void MainWindow::zoomout(){
+    if(image.empty()){
+        QMessageBox::information(this, tr("Error"),QString("There is no image loaded yet! Please load an image then try again"));
+    }
+    else{
     if(imagesize >= 600){
         imagesize=imagesize-200;
         Mat dst;
@@ -102,11 +112,15 @@ void MainWindow::zoomout(){
 
         showMat(copyofimage);
     }
+    }
 }
 
 void MainWindow::convertImage(){
-
-
+    if(image.empty()){
+        QMessageBox::information(this, tr("Error"),QString("There is no image loaded yet! Please load an image then try again"));
+    }
+    else
+{
     // clear previous result
     if(!coordinates.empty()) coordinates.clear();
         copyofimage.copyTo(resultimage);
@@ -230,6 +244,7 @@ void MainWindow::convertImage(){
     for(int i=0; i< coordinates.size(); i++)
     circle(resultimage,coordinates[i],radii[i],Scalar(255,0,0),-1);
     showMat(resultimage);
+    }
 }
 
 
@@ -240,7 +255,7 @@ void MainWindow::setMindist(int min_dist){
 
 void MainWindow::saveCoordinates(){
     if(coordinates.empty()){
-        QMessageBox::information(this, tr("Error"),QString("There is no coordinates to save yet!"));
+        QMessageBox::information(this, tr("Error"),QString("There is no coordinates to save yet! Please load an image, convert it then try again."));
     }
     else
     {
