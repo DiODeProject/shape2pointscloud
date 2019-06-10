@@ -17,10 +17,10 @@ INCLUDEPATH += /usr/local/Cellar/opencv/2.4.13/include
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    dragzoomqlabel.cpp
+    clicksignalqlabel.cpp
 
 HEADERS  += mainwindow.h \
-    dragzoomqlabel.h
+    clicksignalqlabel.h
 
 FORMS    += mainwindow.ui
 
@@ -31,3 +31,5 @@ LIBS += -L/usr/local/Cellar/opencv/2.4.13/lib \
 
 RESOURCES += \
     ressources.qrc
+
+QMAKE_MAC_SDK = macosx10.14

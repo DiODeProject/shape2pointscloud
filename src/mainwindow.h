@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <opencv2/opencv.hpp>
+#include <clicksignalqlabel.h>
+
 
 using namespace cv;
 using namespace std;
@@ -33,6 +35,9 @@ public slots:
     void convertImage();
     void setMindist(int min_dist);
     void saveCoordinates();
+    void manuallysetcoordinate(QPoint pt);
+    void deletecoordinate(QPoint pt);
+    void undocoordinates();
 
 
 private:

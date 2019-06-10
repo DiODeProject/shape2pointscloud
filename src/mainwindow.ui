@@ -20,7 +20,7 @@
       <x>650</x>
       <y>0</y>
       <width>20</width>
-      <height>800</height>
+      <height>700</height>
      </rect>
     </property>
     <property name="orientation">
@@ -33,7 +33,7 @@
       <x>680</x>
       <y>30</y>
       <width>331</width>
-      <height>91</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="title">
@@ -82,7 +82,7 @@
      <property name="geometry">
       <rect>
        <x>120</x>
-       <y>70</y>
+       <y>60</y>
        <width>113</width>
        <height>32</height>
       </rect>
@@ -160,12 +160,25 @@
       <bool>false</bool>
      </property>
     </widget>
+    <widget class="QCheckBox" name="manualset">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>100</y>
+       <width>141</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>manual coordinates</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="dragZoomQLabel" name="image">
+   <widget class="clickSignalQLabel" name="image">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>31</y>
+      <y>30</y>
       <width>600</width>
       <height>600</height>
      </rect>
@@ -244,7 +257,7 @@
    <widget class="QPushButton" name="zoomin">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>560</x>
       <y>0</y>
       <width>30</width>
       <height>30</height>
@@ -274,7 +287,7 @@
    <widget class="QPushButton" name="zoomout">
     <property name="geometry">
      <rect>
-      <x>65</x>
+      <x>600</x>
       <y>0</y>
       <width>30</width>
       <height>30</height>
@@ -348,7 +361,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>18</pointsize>
+      <pointsize>24</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -396,45 +409,6 @@
      </property>
     </widget>
    </widget>
-   <widget class="Line" name="line_2">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>30</y>
-      <width>660</width>
-      <height>3</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="Line" name="line_3">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>632</y>
-      <width>660</width>
-      <height>3</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="Line" name="line_4">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>700</y>
-      <width>660</width>
-      <height>3</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
    <zorder>groupBox_3</zorder>
    <zorder>groupBox_2</zorder>
    <zorder>line</zorder>
@@ -445,9 +419,6 @@
    <zorder>numberofpoints</zorder>
    <zorder>label_4</zorder>
    <zorder>groupBox_4</zorder>
-   <zorder>line_2</zorder>
-   <zorder>line_3</zorder>
-   <zorder>line_4</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -455,7 +426,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -472,9 +443,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>dragZoomQLabel</class>
+   <class>clickSignalQLabel</class>
    <extends>QLabel</extends>
-   <header>dragzoomqlabel.h</header>
+   <header>clicksignalqlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

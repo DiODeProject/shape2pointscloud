@@ -6,6 +6,8 @@
 #include <QDebug>
 #include <fstream>
 #include <QMessageBox>
+#include <cmath>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -21,7 +23,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->convert,SIGNAL(clicked(bool)),this,SLOT(convertImage()));
     connect(ui->mindistslider,SIGNAL(valueChanged(int)),this,SLOT(setMindist(int)));
     connect(ui->save,SIGNAL(clicked(bool)),this,SLOT(saveCoordinates()));
-
+    connect(ui->image,SIGNAL(leftclicked(QPoint)),this,SLOT(manuallysetcoordinate(QPoint)));
+    connect(ui->image,SIGNAL(rightclicked(QPoint)),this,SLOT(undocoordinates()));
+//    connect(ui->image,SIGNAL(rightclicked(QPoint)),this,SLOT(deletecoordinate(QPoint)));
 }
 
 MainWindow::~MainWindow()
@@ -45,6 +49,9 @@ void MainWindow::setImagepath(){
             image.copyTo(resultimage);
             imagesize=copyofimage.rows;
             showMat(copyofimage);
+            if(!coordinates.empty()){
+                coordinates.clear();
+            }
         }
     }
 
@@ -70,11 +77,6 @@ void MainWindow::showMat(Mat display)
 
 
 void MainWindow::zoomin(){
-
-    if(image.empty()){
-        QMessageBox::information(this, tr("Error"),QString("There is no image loaded yet! Please load an image then try again"));
-    }
-    else{
     if(imagesize <= 4000){
         imagesize=imagesize+200;
         Mat dst;
@@ -88,15 +90,12 @@ void MainWindow::zoomin(){
         }
 
         showMat(copyofimage);
-    }
+        this->repaint();
+        coordinates.clear();
     }
 }
 
 void MainWindow::zoomout(){
-    if(image.empty()){
-        QMessageBox::information(this, tr("Error"),QString("There is no image loaded yet! Please load an image then try again"));
-    }
-    else{
     if(imagesize >= 600){
         imagesize=imagesize-200;
         Mat dst;
@@ -111,27 +110,25 @@ void MainWindow::zoomout(){
         }
 
         showMat(copyofimage);
-    }
+        this->repaint();
+        coordinates.clear();
     }
 }
 
 void MainWindow::convertImage(){
-    if(image.empty()){
-        QMessageBox::information(this, tr("Error"),QString("There is no image loaded yet! Please load an image then try again"));
-    }
-    else
-{
+
+
     // clear previous result
     if(!coordinates.empty()) coordinates.clear();
-        copyofimage.copyTo(resultimage);
+    copyofimage.copyTo(resultimage);
 
 
     Mat dst;
     cvtColor(copyofimage,dst,CV_BGR2GRAY);
 
 
-//    int row=copyofimage.rows;
-//    int col=copyofimage.cols;
+    //    int row=copyofimage.rows;
+    //    int col=copyofimage.cols;
 
 
     // shape frame
@@ -144,9 +141,8 @@ void MainWindow::convertImage(){
     int stop=-1;
 
     int z=1;
-    vector<int> radii;
 
-     //Get shape frame
+    //Get shape frame
 
     long int sum;
 
@@ -160,35 +156,35 @@ void MainWindow::convertImage(){
         }
     }
 
-        for(int i=0;i<2000;i++){
-            sum=0;
-            for(int j=0;j<2000;j++){
-                sum+= (int) dst.at<uchar>(j,i);
-            }
-            if(sum!=0) {
-                colend=i;
-            }
+    for(int i=0;i<2000;i++){
+        sum=0;
+        for(int j=0;j<2000;j++){
+            sum+= (int) dst.at<uchar>(j,i);
         }
-
-        for(int i=1999;i>1;i--){
-            sum=0;
-            for(int j=0;j<2000;j++){
-                sum+= (int) dst.at<uchar>(i,j);
-            }
-            if(sum!=0) {
-                rowbeg=i;
-            }
+        if(sum!=0) {
+            colend=i;
         }
+    }
 
-            for(int i=0;i<2000;i++){
-                sum=0;
-                for(int j=0;j<2000;j++){
-                    sum+= (int) dst.at<uchar>(i,j);
-                }
-                if(sum!=0) {
-                    rowend=i;
-                }
-            }
+    for(int i=1999;i>1;i--){
+        sum=0;
+        for(int j=0;j<2000;j++){
+            sum+= (int) dst.at<uchar>(i,j);
+        }
+        if(sum!=0) {
+            rowbeg=i;
+        }
+    }
+
+    for(int i=0;i<2000;i++){
+        sum=0;
+        for(int j=0;j<2000;j++){
+            sum+= (int) dst.at<uchar>(i,j);
+        }
+        if(sum!=0) {
+            rowend=i;
+        }
+    }
 
     // get colums indeces
 
@@ -212,29 +208,28 @@ void MainWindow::convertImage(){
         for(int i=rowbeg;i<=rowend;i++) {
 
             if((dst.at<uchar>(i,j)>=200) && (start==-1))
-                    start=i;
+                start=i;
 
             if((dst.at<uchar>(i,j)<200) && (start!=-1))
-                    stop=i-1;
+                stop=i-1;
 
 
             if((start!=-1)&&(stop!=-1)){
 
-                    int dist=stop-start+1;
-                    int number=round(dist/(min_distance*10))+1;
-                    dist=dist/number;
+                int dist=stop-start+1;
+                int number=round(dist/(min_distance*10))+1;
+                dist=dist/number;
 
-                    int m=start;
-                    while(m<=stop){
+                int m=start;
+                while(m<=stop){
                     coordinates.push_back( Point(j,m) ); // or "m+dist/2"
-                    radii.push_back(10);
                     m=m+dist;
-                    }
-
-                    i=stop+1;
-                    start=-1;
-                    stop=-1;
                 }
+
+                i=stop+1;
+                start=-1;
+                stop=-1;
+            }
         }
 
     }
@@ -242,9 +237,10 @@ void MainWindow::convertImage(){
     ui->numberofpoints->setEnabled(true);
     ui->numberofpoints->display( QString::number((int) coordinates.size()));
     for(int i=0; i< coordinates.size(); i++)
-    circle(resultimage,coordinates[i],radii[i],Scalar(255,0,0),-1);
+        circle(resultimage,coordinates[i],10,Scalar(255,0,0),-1);
     showMat(resultimage);
-    }
+    this->repaint();
+
 }
 
 
@@ -255,26 +251,26 @@ void MainWindow::setMindist(int min_dist){
 
 void MainWindow::saveCoordinates(){
     if(coordinates.empty()){
-        QMessageBox::information(this, tr("Error"),QString("There is no coordinates to save yet! Please load an image, convert it then try again."));
+        QMessageBox::information(this, tr("Error"),QString("There is no coordinates to save yet!"));
     }
     else
     {
-    QString fileName = QFileDialog::getSaveFileName(this,
-        tr("Save Coordinates"), QDir::homePath(),
-        tr("Text file (*.txt);;All Files (*)"));
+        QString fileName = QFileDialog::getSaveFileName(this,
+                                                        tr("Save Coordinates"), QDir::homePath(),
+                                                        tr("Text file (*.txt);;All Files (*)"));
 
-    if (fileName.isEmpty())
-        return;
-    else {
-        QFile file(fileName);
-        if (!file.open(QIODevice::WriteOnly)) {
-            QMessageBox::information(this, tr("Unable to open file"),
-                file.errorString());
+        if (fileName.isEmpty())
             return;
-        }
+        else {
+            QFile file(fileName);
+            if (!file.open(QIODevice::WriteOnly)) {
+                QMessageBox::information(this, tr("Unable to open file"),
+                                         file.errorString());
+                return;
+            }
 
-            QDataStream out(&file);
-            out.setVersion(QDataStream::Qt_4_5);
+            QTextStream out(&file);
+//            out.setVersion(QDataStream::Qt_4_5);
 
             out << " X\t Y"<<"\n";
             for(int i=0;i<( (int) coordinates.size());i++)
@@ -286,3 +282,51 @@ void MainWindow::saveCoordinates(){
     }
 
 }
+
+
+void MainWindow::manuallysetcoordinate(QPoint pt){
+    if(ui->manualset->isChecked()){
+        copyofimage.copyTo(resultimage);
+        coordinates.push_back(Point(pt.x()*2000/600,pt.y()*2000/600));
+        for(int i=0; i< coordinates.size(); i++)
+            circle(resultimage,coordinates[i],10,Scalar(255,0,0),-1);
+        showMat(resultimage);
+        ui->numberofpoints->setEnabled(true);
+        ui->numberofpoints->display( QString::number((int) coordinates.size()));
+        this->repaint();
+    }
+}
+
+
+void MainWindow::undocoordinates(){
+    copyofimage.copyTo(resultimage);
+    coordinates.pop_back();
+    for(int i=0; i< coordinates.size(); i++)
+        circle(resultimage,coordinates[i],10,Scalar(255,0,0),-1);
+    showMat(resultimage);
+    ui->numberofpoints->setEnabled(true);
+    ui->numberofpoints->display( QString::number((int) coordinates.size()));
+    this->repaint();
+}
+void MainWindow::deletecoordinate(QPoint pt){
+    unsigned int mindist=UINT_MAX;
+    int min =-1;
+    for(int i=0; i< coordinates.size(); i++){
+        float dist=sqrt((coordinates[i].x-pt.x()*2000/600)^2+(coordinates[i].y-pt.y()*2000/600)^2);
+        if(dist<mindist){
+            mindist=dist;
+            min=i;
+        }
+    }
+
+    coordinates.erase(coordinates.begin()+min);
+
+    copyofimage.copyTo(resultimage);
+    for(int i=0; i< coordinates.size(); i++)
+        circle(resultimage,coordinates[i],10,Scalar(255,0,0),-1);
+    showMat(resultimage);
+    ui->numberofpoints->setEnabled(true);
+    ui->numberofpoints->display( QString::number((int) coordinates.size()));
+    this->repaint();
+}
+
